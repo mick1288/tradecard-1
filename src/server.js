@@ -7,18 +7,15 @@ const app = express();
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('../public')); // Make sure this path correctly points to where your static files are located
+// Ensure this path correctly points to where your static files are located
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Routes
 
 // Root Route - Serve the main page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'views', 'index.html'), err => {
-        if (err) {
-            console.log(err);
-            res.status(404).send("Sorry! Can't find that resource.");
-        }
-    });
+    // Serve index.html as the main page
+    res.sendFile(path.join(__dirname, '..', 'views', 'index.html'));
 });
 
 // Register Route - Serve the registration form and handle submissions
@@ -108,17 +105,15 @@ app.get('/collections', (req, res) => {
     });
 });
 
-// Cards Page Route - Assuming you have a cards.html
+// Get all cards
 app.get('/cards', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'views', 'cards.html'), err => {
-        if (err) {
-            console.log(err);
-            res.status(404).send("Sorry! Can't find that resource.");
+    const query = 'SELECT * FROM Cards;';
+    db.query(query, (error, results) => {
+        if (error) {
+            console.error('Error retrieving cards:', error);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.json(results);
         }
     });
-});
-
-const PORT = process.env.PORT || 5500;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
 });
