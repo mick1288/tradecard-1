@@ -1,91 +1,118 @@
-const axios = require('axios');
-const mysql = require('mysql2');
-const moment = require('moment');
+const express = require('express');
+const bcrypt = require('bcrypt');
+const db = require('./database'); // Assuming this path correctly points to your database configuration
+const path = require('path');
 
-// Type to weakness mapping
-const typeWeaknesses = {
-    'fire': 'water',
-    'water': 'electric',
-    'electric': 'ground',
-    'grass': 'fire',
-    'ground': 'water',
-    'psychic': 'dark',
-    'dark': 'bug',
-    'bug': 'fire',
-    'rock': 'water',
-    'ghost': 'ghost',
-    'dragon': 'ice',
-    'ice': 'fire',
-    'steel': 'fire',
-    'fairy': 'poison',
-    'poison': 'psychic',
-    'flying': 'electric',
-    'fighting': 'fairy',
-    'normal': 'fighting'
-};
+const app = express();
 
-// Database connection setup
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',  // Update with your actual username
-    password: '',  // If there's no password
-    database: 'tradecard'  // Ensure this is the correct database name
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// Middleware to parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
+
+// Serve the main page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'views', 'index.html'));
 });
 
-db.connect(err => {
-    if (err) {
-        console.error('Error connecting to the database:', err);
-        return;
-    }
-    console.log('Connected to the database successfully');
-    fetchData();
+// Serve the registration form
+app.get('/register.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'views', 'register.html'));
 });
 
-function fetchData() {
-    for (let i = 1; i <= 60; i++) {
-        fetchAndInsertPokemon(i);
-    }
-}
+// Handle registration form submissions
+app.post('/register', (req, res) => {
+    const { username, email, password } = req.body;
+    const saltRounds = 10;
 
-function fetchAndInsertPokemon(pokemonId) {
-    const apiUrl = `https://pokeapi.co/api/v2/pokemon/${pokemonId}`;
-    const speciesUrl = `https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`;
-
-    axios.get(apiUrl).then(response => {
-        const pokemon = response.data;
-        const weaknesses = pokemon.types.map(type => typeWeaknesses[type.type.name] || 'none').join(', ');
-
-        // Fetch species for description
-        axios.get(speciesUrl).then(speciesResponse => {
-            const species = speciesResponse.data;
-            const description = species.flavor_text_entries.find(f => f.language.name === 'en').flavor_text.replace(/[\f\n\r]/g, ' ');
-
-            insertPokemonData(pokemon, description, weaknesses);
-        }).catch(error => {
-            console.error('Error fetching species data:', error);
-        });
-
-    }).catch(error => {
-        console.error('Error fetching Pokémon data:', error);
-    });
-}
-
-function insertPokemonData(pokemon, description, weaknesses) {
-    const name = pokemon.name;
-    const image_url = pokemon.sprites.front_default || '';
-    const types = pokemon.types.map(type => type.type.name).join(', ');
-    const hp = pokemon.stats.find(stat => stat.stat.name === 'hp').base_stat;
-    const attacks = pokemon.moves.map(move => move.move.name).join(', ');
-    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
-    const query = `
-        INSERT INTO Cards (user_id, card_name, description, image_url, created_at, updated_at, rarity, hp, types, stage, attacks, weakness)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-    `;
-    db.query(query, [1, name, description, image_url, currentTime, currentTime, 'Common', hp, types, 'Basic', attacks, weaknesses], (err, results) => {
+    bcrypt.hash(password, saltRounds, (err, hash) => {
         if (err) {
-            console.error(`Failed to insert data for ${name}:`, err);
+            console.error('Error hashing password:', err);
+            return res.status(500).send('Error during registration');
+        }
+        db.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, hash], (error, results) => {
+            if (error) {
+                console.error('Error adding user:', error);
+                return res.status(500).send('Internal Server Error');
+            }
+            res.redirect('/success.html');
+        });
+    });
+});
+
+// Retrieve all users
+app.get('/users', (req, res) => {
+    db.query('SELECT * FROM users', (error, results) => {
+        if (error) {
+            console.error('Error retrieving users:', error);
+            res.status(500).send('Internal Server Error');
         } else {
-            console.log(`Data inserted successfully for ${name}`);
+            res.json(results);
         }
     });
-}
+});
+
+// Test database connection
+app.get('/test-db-connection', (req, res) => {
+    db.query('SELECT 1', (error, results) => {
+        if (error) {
+            console.error('Error connecting to the database:', error);
+            res.status(500).send('Error connecting to the database');
+        } else {
+            res.send('Database connected successfully!');
+        }
+    });
+});
+
+// Serve success page after registration
+app.get('/success.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'views', 'success.html'));
+});
+
+// Routes for card collections
+app.post('/collections', (req, res) => {
+    const { userId, collectionName } = req.body;
+    if (!userId || !collectionName) {
+        res.status(400).send('User ID and collection name are required.');
+        return;
+    }
+    db.query('INSERT INTO collections (user_id, collection_name) VALUES (?, ?)', [userId, collectionName], (error, results) => {
+        if (error) {
+            console.error('Error creating collection:', error);
+            return res.status(500).send('Internal Server Error');
+        }
+        res.status(201).send('Collection created successfully.');
+    });
+});
+
+// Retrieve all collections
+app.get('/collections', (req, res) => {
+    db.query('SELECT * FROM collections', (error, results) => {
+        if (error) {
+            console.error('Error retrieving collections:', error);
+            return res.status(500).send('Internal Server Error');
+        }
+        res.json(results);
+    });
+});
+
+// Retrieve all cards
+app.get('/cards', (req, res) => {
+    db.query('SELECT * FROM Cards;', (error, results) => {
+        if (error) {
+            console.error('Error retrieving cards:', error);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.json(results);
+        }
+    });
+});
+
+// Start the server on the specified port
+const PORT = process.env.PORT || 5500;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+}).on('error', (err) => {
+    console.error('Failed to start server:', err);
+});
