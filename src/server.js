@@ -2,19 +2,19 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const path = require('path');
-const db = require('./database'); // Correct path to your database module
+const db = require('./database'); // Ensure this path is correct
 
 const app = express();
 
-// Session configuration
+// Set up session middleware
 app.use(session({
-    secret: 'your_secret_key', // Change this for production
+    secret: 'your_secret_key', // Replace 'your_secret_key' with a real secret string in production
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Use `true` only if you're on HTTPS
+    cookie: { secure: false } // Set to true if using HTTPS
 }));
 
-// Middleware to serve static files from 'public' and 'views'
+// Serve static files from 'public' and 'views' directories
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.static(path.join(__dirname, '..', 'views')));
 
@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-// Registration Routes
+// Registration routes
 app.get('/register.html', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'views', 'register.html'));
 });
@@ -50,7 +50,7 @@ app.post('/register', (req, res) => {
     });
 });
 
-// Login Routes
+// Login routes
 app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'views', 'login.html'));
 });
@@ -76,7 +76,7 @@ app.post('/login', (req, res) => {
     });
 });
 
-// Dashboard Route
+// Dashboard route
 app.get('/dashboard.html', (req, res) => {
     if (req.session.user) {
         res.sendFile(path.join(__dirname, '..', 'views', 'dashboard.html'));
@@ -85,7 +85,22 @@ app.get('/dashboard.html', (req, res) => {
     }
 });
 
-// View Collections Route
+// API to view collections
+app.get('/api/collections', (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('Unauthorized');
+    }
+    db.query('SELECT * FROM collections WHERE user_id = ?', [req.session.user.id], (error, results) => {
+        if (error) {
+            console.error('Error retrieving collections:', error);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.json(results);
+        }
+    });
+});
+
+// View collections route
 app.get('/collections.html', (req, res) => {
     if (req.session.user) {
         res.sendFile(path.join(__dirname, '..', 'views', 'collections.html'));
@@ -94,7 +109,7 @@ app.get('/collections.html', (req, res) => {
     }
 });
 
-// View Cards Route
+// View cards route
 app.get('/cards.html', (req, res) => {
     if (req.session.user) {
         res.sendFile(path.join(__dirname, '..', 'views', 'cards.html'));
