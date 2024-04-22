@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const path = require('path');
-const db = require('./database'); // Make sure this path is correctly pointing to your database module
+const db = require('./database'); // Correct path to your database module
 
 const app = express();
 
@@ -14,7 +14,7 @@ app.use(session({
     cookie: { secure: false } // Use `true` only if you're on HTTPS
 }));
 
-// Middleware to serve static files
+// Middleware to serve static files from 'public' and 'views'
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.static(path.join(__dirname, '..', 'views')));
 
@@ -36,15 +36,17 @@ app.post('/register', (req, res) => {
     bcrypt.hash(password, 10, (err, hash) => {
         if (err) {
             console.error('Error hashing password:', err);
-            return res.status(500).send('Error during registration');
+            res.status(500).send('Error during registration');
+        } else {
+            db.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, hash], (error) => {
+                if (error) {
+                    console.error('Error adding user:', error);
+                    res.status(500).send('Internal Server Error');
+                } else {
+                    res.redirect('/success.html');
+                }
+            });
         }
-        db.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, hash], (error) => {
-            if (error) {
-                console.error('Error adding user:', error);
-                return res.status(500).send('Internal Server Error');
-            }
-            res.redirect('/success.html');
-        });
     });
 });
 
@@ -58,9 +60,8 @@ app.post('/login', (req, res) => {
     db.query('SELECT * FROM users WHERE username = ?', [username], (error, results) => {
         if (error) {
             console.error('Error fetching user:', error);
-            return res.status(500).send('Internal Server Error');
-        }
-        if (results.length > 0) {
+            res.status(500).send('Internal Server Error');
+        } else if (results.length > 0) {
             bcrypt.compare(password, results[0].password, (err, result) => {
                 if (result) {
                     req.session.user = { id: results[0].user_id, username: results[0].username };
@@ -84,7 +85,25 @@ app.get('/dashboard.html', (req, res) => {
     }
 });
 
-// Server and Database Connectivity Tests
+// View Collections Route
+app.get('/collections.html', (req, res) => {
+    if (req.session.user) {
+        res.sendFile(path.join(__dirname, '..', 'views', 'collections.html'));
+    } else {
+        res.send('Please login to view this page.');
+    }
+});
+
+// View Cards Route
+app.get('/cards.html', (req, res) => {
+    if (req.session.user) {
+        res.sendFile(path.join(__dirname, '..', 'views', 'cards.html'));
+    } else {
+        res.send('Please login to view this page.');
+    }
+});
+
+// Retrieve all users
 app.get('/users', (req, res) => {
     db.query('SELECT * FROM users', (error, results) => {
         if (error) {
@@ -96,6 +115,7 @@ app.get('/users', (req, res) => {
     });
 });
 
+// Retrieve all cards
 app.get('/cards', (req, res) => {
     let { name, type, rarity, sortBy, sortOrder = 'ASC', attack } = req.query;
     let query = "SELECT * FROM Cards WHERE 1=1";
