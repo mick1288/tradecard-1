@@ -2,31 +2,26 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const path = require('path');
-const db = require('./database'); // Ensure this path is correct
+const db = require('./database');
 
 const app = express();
+const PORT = process.env.PORT || 5500;
 
-// Set up session middleware
 app.use(session({
-    secret: 'your_secret_key', // Replace 'your_secret_key' with a real secret string in production
+    secret: 'your_secret_key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: { secure: false }
 }));
 
-// Serve static files from 'public' and 'views' directories
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.static(path.join(__dirname, '..', 'views')));
-
-// Middleware to parse URL-encoded data (from forms)
 app.use(express.urlencoded({ extended: true }));
 
-// Serve the homepage
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-// Registration routes
 app.get('/register.html', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'views', 'register.html'));
 });
@@ -50,7 +45,6 @@ app.post('/register', (req, res) => {
     });
 });
 
-// Login routes
 app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'views', 'login.html'));
 });
@@ -76,7 +70,6 @@ app.post('/login', (req, res) => {
     });
 });
 
-// Dashboard route
 app.get('/dashboard.html', (req, res) => {
     if (req.session.user) {
         res.sendFile(path.join(__dirname, '..', 'views', 'dashboard.html'));
@@ -85,22 +78,6 @@ app.get('/dashboard.html', (req, res) => {
     }
 });
 
-// API to view collections
-app.get('/api/collections', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).send('Unauthorized');
-    }
-    db.query('SELECT * FROM collections WHERE user_id = ?', [req.session.user.id], (error, results) => {
-        if (error) {
-            console.error('Error retrieving collections:', error);
-            res.status(500).send('Internal Server Error');
-        } else {
-            res.json(results);
-        }
-    });
-});
-
-// View collections route
 app.get('/collections.html', (req, res) => {
     if (req.session.user) {
         res.sendFile(path.join(__dirname, '..', 'views', 'collections.html'));
@@ -109,7 +86,31 @@ app.get('/collections.html', (req, res) => {
     }
 });
 
-// View cards route
+app.get('/api/public-collections', (req, res) => {
+    // Ensure there's a logged-in user
+    if (!req.session.user) {
+        return res.status(401).send('Unauthorized');
+    }
+    
+    // Query to fetch collections and their card details
+    const query = `
+        SELECT c.collection_name, ca.card_name, ca.types, ca.rarity
+        FROM collections c
+        JOIN collection_items ci ON c.collection_id = ci.collection_id
+        JOIN cards ca ON ci.card_id = ca.card_id
+        WHERE c.user_id = ?;
+    `;
+    
+    db.query(query, [req.session.user.id], (error, results) => {
+        if (error) {
+            console.error('Error retrieving public collections:', error);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.json(results);
+        }
+    });
+});
+
 app.get('/cards.html', (req, res) => {
     if (req.session.user) {
         res.sendFile(path.join(__dirname, '..', 'views', 'cards.html'));
@@ -118,7 +119,6 @@ app.get('/cards.html', (req, res) => {
     }
 });
 
-// Retrieve all users
 app.get('/users', (req, res) => {
     db.query('SELECT * FROM users', (error, results) => {
         if (error) {
@@ -130,7 +130,6 @@ app.get('/users', (req, res) => {
     });
 });
 
-// Retrieve all cards
 app.get('/cards', (req, res) => {
     let { name, type, rarity, sortBy, sortOrder = 'ASC', attack } = req.query;
     let query = "SELECT * FROM Cards WHERE 1=1";
@@ -151,8 +150,6 @@ app.get('/cards', (req, res) => {
     });
 });
 
-// Start the server
-const PORT = process.env.PORT || 5500;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
