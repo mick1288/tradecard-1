@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes to serve HTML pages
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
 app.get('/register.html', (req, res) => {
@@ -153,36 +153,14 @@ app.get('/cards', (req, res) => {
     });
 });
 
-// Function to fetch and update card descriptions
-async function fetchAndUpdateDescriptions() {
-    try {
-        const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100');
-        const pokemons = response.data.results;
-
-        for (const pokemon of pokemons) {
-            const pokemonDetails = await axios.get(pokemon.url);
-            const descriptionEntry = pokemonDetails.data.flavor_text_entries.find(f => f.language.name === 'en');
-            if (descriptionEntry) {
-                const description = descriptionEntry.flavor_text.replace(/[\n\f]/g, ' ');
-                const query = 'UPDATE Cards SET description = ? WHERE card_name = ?';
-                db.query(query, [description, pokemon.name], (error, results) => {
-                    if (error) {
-                        console.error('Failed to update:', pokemon.name, error);
-                    } else {
-                        console.log('Updated:', pokemon.name);
-                    }
-                });
-            }
+// Logout route
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).send('Failed to log out');
         }
-    } catch (error) {
-        console.error('Error fetching from PokeAPI:', error);
-    }
-}
-
-// Endpoint to trigger updating descriptions
-app.get('/update-descriptions', (req, res) => {
-    fetchAndUpdateDescriptions();
-    res.send('Updating descriptions...');
+        res.sendFile(path.join(__dirname, '..', 'views', 'logout-success.html')); // Make sure the path is correct
+    });
 });
 
 // Start the server
