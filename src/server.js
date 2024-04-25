@@ -2,11 +2,13 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const path = require('path');
-const db = require('./database');
+const db = require('./database'); // Ensure this is pointing to the correct path where your database configuration is set up
+const axios = require('axios'); // Ensure Axios is included for API requests
 
 const app = express();
 const PORT = process.env.PORT || 5500;
 
+// Session configuration
 app.use(session({
     secret: 'your_secret_key',
     resave: false,
@@ -14,10 +16,12 @@ app.use(session({
     cookie: { secure: false }
 }));
 
+// Middleware to serve static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.static(path.join(__dirname, '..', 'views')));
 app.use(express.urlencoded({ extended: true }));
 
+// Routes to serve HTML pages
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
@@ -87,21 +91,20 @@ app.get('/collections.html', (req, res) => {
 });
 
 app.get('/api/public-collections', (req, res) => {
-    // Ensure there's a logged-in user
-    if (!req.session.user) {
-        return res.status(401).send('Unauthorized');
-    }
-    
-    // Query to fetch collections and their card details
     const query = `
-        SELECT c.collection_name, ca.card_name, ca.types, ca.rarity
-        FROM collections c
-        JOIN collection_items ci ON c.collection_id = ci.collection_id
-        JOIN cards ca ON ci.card_id = ca.card_id
-        WHERE c.user_id = ?;
+        SELECT 
+            c.collection_name, 
+            ca.card_name, 
+            ca.types, 
+            ca.rarity 
+        FROM 
+            collections c 
+        JOIN 
+            collection_items ci ON c.collection_id = ci.collection_id 
+        JOIN 
+            cards ca ON ci.card_id = ca.card_id;
     `;
-    
-    db.query(query, [req.session.user.id], (error, results) => {
+    db.query(query, (error, results) => {
         if (error) {
             console.error('Error retrieving public collections:', error);
             res.status(500).send('Internal Server Error');
@@ -150,6 +153,39 @@ app.get('/cards', (req, res) => {
     });
 });
 
+// Function to fetch and update card descriptions
+async function fetchAndUpdateDescriptions() {
+    try {
+        const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100');
+        const pokemons = response.data.results;
+
+        for (const pokemon of pokemons) {
+            const pokemonDetails = await axios.get(pokemon.url);
+            const descriptionEntry = pokemonDetails.data.flavor_text_entries.find(f => f.language.name === 'en');
+            if (descriptionEntry) {
+                const description = descriptionEntry.flavor_text.replace(/[\n\f]/g, ' ');
+                const query = 'UPDATE Cards SET description = ? WHERE card_name = ?';
+                db.query(query, [description, pokemon.name], (error, results) => {
+                    if (error) {
+                        console.error('Failed to update:', pokemon.name, error);
+                    } else {
+                        console.log('Updated:', pokemon.name);
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching from PokeAPI:', error);
+    }
+}
+
+// Endpoint to trigger updating descriptions
+app.get('/update-descriptions', (req, res) => {
+    fetchAndUpdateDescriptions();
+    res.send('Updating descriptions...');
+});
+
+// Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
