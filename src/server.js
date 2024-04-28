@@ -123,7 +123,7 @@ app.get('/cards.html', (req, res) => {
 });
 
 app.get('/users', (req, res) => {
-    db.query('SELECT * FROM users', (error, results) => {
+    db.query('SELECT username FROM users', (error, results) => {
         if (error) {
             console.error('Error retrieving users:', error);
             res.status(500).send('Internal Server Error');
@@ -134,15 +134,35 @@ app.get('/users', (req, res) => {
 });
 
 app.get('/cards', (req, res) => {
-    let { name, type, rarity, sortBy, sortOrder = 'ASC', attack } = req.query;
+    let { name, type, rarity, price, set, series } = req.query;
     let query = "SELECT * FROM Cards WHERE 1=1";
     let params = [];
-    if (name) { query += " AND card_name LIKE ?"; params.push(`%${name}%`); }
-    if (type) { query += " AND types LIKE ?"; params.push(`%${type}%`); }
-    if (rarity) { query += " AND rarity = ?"; params.push(rarity); }
-    if (attack) { query += " AND attacks LIKE ?"; params.push(`%${attack}%`); }
-    if (sortBy) { query += ` ORDER BY ${sortBy} ${sortOrder}`; }
-    else { query += " ORDER BY card_name ASC"; }
+
+    if (name) {
+        query += " AND card_name LIKE ?";
+        params.push(`%${name}%`);
+    }
+    if (type) {
+        query += " AND types LIKE ?";
+        params.push(`%${type}%`);
+    }
+    if (rarity) {
+        query += " AND rarity = ?";
+        params.push(rarity);
+    }
+    if (price) {
+        query += " AND price <= ?";
+        params.push(price);
+    }
+    if (set) {
+        query += " AND set_name = ?";
+        params.push(set);
+    }
+    if (series) {
+        query += " AND series = ?";
+        params.push(series);
+    }
+
     db.query(query, params, (error, results) => {
         if (error) {
             console.error('Error retrieving cards:', error);

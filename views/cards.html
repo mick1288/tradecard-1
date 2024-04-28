@@ -7,6 +7,15 @@
 </head>
 <body>
     <h1>Browse Cards</h1>
+    <form id="searchForm">
+        <input type="text" id="name" placeholder="Card Name">
+        <input type="text" id="type" placeholder="Type">
+        <input type="text" id="rarity" placeholder="Rarity">
+        <input type="number" id="price" placeholder="Max Price">
+        <input type="text" id="set" placeholder="Set Name">
+        <input type="text" id="series" placeholder="Series">
+        <button type="button" onclick="searchCards()">Search</button>
+    </form>
     <div id="cardsContainer"></div>
     <script src="/js/cards.js"></script>
 </body>
