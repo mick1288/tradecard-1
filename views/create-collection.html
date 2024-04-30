@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1.0">
+    <title>Create a Collection</title>
+</head>
+<body>
+    <h1>Create a New Collection</h1>
+
+    <form action="/create-collection" method="post">
+        <label for="collection_name">Collection Name:</label>
+        <input type="text" name="collection_name" id="collection_name" required>
+
+        <label for="card_name">Card Name:</label>
+        <input type="text" name="card_name" placeholder="Card Name">
+
+        <label for="type">Type:</label>
+        <input type="text" name="type" placeholder="Type">
+
+        <label for="rarity">Rarity:</label>
+        <input type="text" name="rarity" placeholder="Rarity">
+
+        <label for="set">Set:</label>
+        <input type="text" name="set" placeholder="Set Name">
+
+        <label for="series">Series:</label>
+        <input type="text" name="series" placeholder="Series">
+
+        <!-- Card selection checkboxes can also be added: -->
+        <label for="card_ids">Select Cards:</label>
+        <input type="checkbox" name="card_ids" value="1">Card 1<br>
+        <input type="checkbox" name="card_ids" value="2">Card 2<br>
+
+        <button type="submit">Create Collection</button>
+    </form>
+</body>
+</html>

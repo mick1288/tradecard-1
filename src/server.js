@@ -90,6 +90,43 @@ app.get('/collections.html', (req, res) => {
     }
 });
 
+app.get('/create-collection', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'views', 'create-collection.html'));
+});
+
+
+app.post('/create-collection', (req, res) => {
+    const { collection_name, card_ids, card_name, type, rarity, set, series } = req.body;
+    const user_id = req.session.user?.id;
+
+    if (!user_id) {
+        return res.status(401).send("User not logged in.");
+    }
+
+    // Insert the collection into the database
+    db.query("INSERT INTO Collections (user_id, collection_name) VALUES (?, ?)", [user_id, collection_name], (error, result) => {
+        if (error) {
+            console.error("Error creating collection:", error);
+            return res.status(500).send("Internal Server Error.");
+        }
+
+        const collection_id = result.insertId; // Get the new collection ID
+
+        const items = card_ids.map(card_id => [collection_id, card_id]);
+
+        db.query("INSERT INTO collection_items (collection_id, card_id) VALUES ?", [items], (error) => {
+            if (error) {
+                console.error("Error adding collection items:", error);
+                return res.status(500).send("Internal Server Error.");
+            }
+
+            res.redirect('/collections');
+        });
+    });
+});
+
+
+
 app.get('/api/public-collections', (req, res) => {
     const query = `
         SELECT 
