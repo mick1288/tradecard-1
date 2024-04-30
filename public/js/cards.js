@@ -2,20 +2,27 @@ function searchCards() {
     const name = document.getElementById('name').value;
     const type = document.getElementById('type').value;
     const rarity = document.getElementById('rarity').value;
-    const price = document.getElementById('price').value;
     const set = document.getElementById('set').value;
     const series = document.getElementById('series').value;
 
-    const query = `?name=${name}&type=${type}&rarity=${rarity}&price=${price}&set=${set}&series=${series}`;
+    const query = `?name=${name}&type=${type}&rarity=${rarity}&set=${set}&series=${series}`;
 
     fetch(`/cards${query}`)
         .then(response => response.json())
         .then(data => {
             const container = document.getElementById('cardsContainer');
-            container.innerHTML = ''; // Clear previous results
+            container.innerHTML = ''; 
+
             data.forEach(card => {
                 const cardElem = document.createElement('div');
-                cardElem.textContent = `Name: ${card.card_name}, Type: ${card.types}, Rarity: ${card.rarity}, Price: ${card.price}, Set: ${card.set_name}, Series: ${card.series}`;
+                cardElem.innerHTML = `
+                    <strong>Name:</strong> ${card.card_name}<br>
+                    <strong>Type:</strong> ${card.types}<br>
+                    <strong>Rarity:</strong> ${card.rarity}<br>
+                    <strong>Set:</strong> ${card.set_name}<br>
+                    <strong>Series:</strong> ${card.series}<br>
+                    <a href="${card.cardmarket_url}">View Pricing</a>
+                `;
                 container.appendChild(cardElem);
             });
         })
