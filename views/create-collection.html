@@ -12,27 +12,42 @@
         <label for="collection_name">Collection Name:</label>
         <input type="text" name="collection_name" id="collection_name" required>
 
-        <label for="card_name">Card Name:</label>
-        <input type="text" name="card_name" placeholder="Card Name">
-
-        <label for="type">Type:</label>
-        <input type="text" name="type" placeholder="Type">
-
-        <label for="rarity">Rarity:</label>
-        <input type="text" name="rarity" placeholder="Rarity">
-
-        <label for="set">Set:</label>
-        <input type="text" name="set" placeholder="Set Name">
-
-        <label for="series">Series:</label>
-        <input type="text" name="series" placeholder="Series">
-
-        <!-- Card selection checkboxes can also be added: -->
+        <!-- Dynamically generated card selections: -->
         <label for="card_ids">Select Cards:</label>
-        <input type="checkbox" name="card_ids" value="1">Card 1<br>
-        <input type="checkbox" name="card_ids" value="2">Card 2<br>
+
+        <!-- Card checkboxes will be inserted here by JavaScript -->
 
         <button type="submit">Create Collection</button>
     </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/card-names')
+                .then(response => response.json())
+                .then(cards => {
+                    const form = document.querySelector('form');
+                    const cardsContainer = document.createElement('div');
+
+                    cards.forEach(card => {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.name = 'card_ids';
+                        checkbox.value = card.card_id;
+
+                        const label = document.createElement('label');
+                        label.appendChild(checkbox);
+                        label.append(` ${card.card_name}`);
+
+                        const br = document.createElement('br');
+
+                        cardsContainer.appendChild(label);
+                        cardsContainer.appendChild(br);
+                    });
+
+                    form.insertBefore(cardsContainer, form.querySelector('button[type="submit"]'));
+                })
+                .catch(error => console.error('Error loading cards:', error));
+        });
+    </script>
 </body>
 </html>

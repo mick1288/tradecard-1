@@ -82,35 +82,59 @@ app.get('/dashboard.html', (req, res) => {
     }
 });
 
-app.get('/collections.html', (req, res) => {
-    if (req.session.user) {
-        res.sendFile(path.join(__dirname, '..', 'views', 'collections.html'));
-    } else {
-        res.send('Please login to view this page.');
+app.get('/collections', (req, res) => {
+    const user_id = req.session.user?.id; 
+
+    if (!user_id) {
+        return res.status(401).send("User not logged in.");
     }
+
+    const query = `
+        SELECT 
+            c.collection_name, 
+            u.username, 
+            ca.card_name, 
+            ca.types, 
+            ca.rarity 
+        FROM Collections c
+        JOIN collection_items ci ON c.collection_id = ci.collection_id
+        JOIN Cards ca ON ci.card_id = ca.card_id
+        JOIN users u ON c.user_id = u.user_id
+        WHERE c.user_id = ?
+    `;
+
+    db.query(query, [user_id], (error, results) => {
+        if (error) {
+            console.error("Error retrieving collections:", error);
+            return res.status(500).send("Internal Server Error.");
+        }
+
+        res.json(results); 
+    });
 });
+
+
+
 
 app.get('/create-collection', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'views', 'create-collection.html'));
 });
 
-
 app.post('/create-collection', (req, res) => {
-    const { collection_name, card_ids, card_name, type, rarity, set, series } = req.body;
+    const { collection_name, card_ids } = req.body;
     const user_id = req.session.user?.id;
 
     if (!user_id) {
         return res.status(401).send("User not logged in.");
     }
 
-    // Insert the collection into the database
     db.query("INSERT INTO Collections (user_id, collection_name) VALUES (?, ?)", [user_id, collection_name], (error, result) => {
         if (error) {
             console.error("Error creating collection:", error);
             return res.status(500).send("Internal Server Error.");
         }
 
-        const collection_id = result.insertId; // Get the new collection ID
+        const collection_id = result.insertId; // New collection ID
 
         const items = card_ids.map(card_id => [collection_id, card_id]);
 
@@ -126,6 +150,19 @@ app.post('/create-collection', (req, res) => {
 });
 
 
+app.get('/api/card-names', (req, res) => {
+    db.query("SELECT card_id, card_name FROM Cards", (error, results) => {
+        if (error) {
+            console.error("Error retrieving cards:", error);
+            return res.status(500).send("Internal Server Error.");
+        }
+
+        res.json(results);
+    });
+});
+
+
+
 
 app.get('/api/public-collections', (req, res) => {
     const query = `
@@ -133,23 +170,24 @@ app.get('/api/public-collections', (req, res) => {
             c.collection_name, 
             ca.card_name, 
             ca.types, 
-            ca.rarity 
-        FROM 
-            collections c 
-        JOIN 
-            collection_items ci ON c.collection_id = ci.collection_id 
-        JOIN 
-            cards ca ON ci.card_id = ca.card_id;
+            ca.rarity, 
+            u.username 
+        FROM Collections c
+        JOIN collection_items ci ON c.collection_id = ci.collection_id
+        JOIN Cards ca ON ci.card_id = ca.card_id
+        JOIN users u ON c.user_id = u.user_id
     `;
+
     db.query(query, (error, results) => {
         if (error) {
-            console.error('Error retrieving public collections:', error);
-            res.status(500).send('Internal Server Error');
-        } else {
-            res.json(results);
+            console.error("Error retrieving public collections:", error);
+            return res.status(500).send("Internal Server Error.");
         }
+
+        res.json(results);
     });
 });
+
 
 app.get('/cards.html', (req, res) => {
     if (req.session.user) {
