@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(collections => {
             const container = document.getElementById('collectionsContainer');
 
-            container.innerHTML = ''; // Clear previous results
+            container.innerHTML = ''; 
 
             if (collections.length > 0) {
                 collections.forEach(item => {

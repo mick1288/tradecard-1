@@ -2,13 +2,13 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const path = require('path');
-const db = require('./database'); // Ensure this is pointing to the correct path where your database configuration is set up
-const axios = require('axios'); // Ensure Axios is included for API requests
+const db = require('./database'); 
+const axios = require('axios'); 
 
 const app = express();
 const PORT = process.env.PORT || 5500;
 
-// Session configuration
+
 app.use(session({
     secret: 'your_secret_key',
     resave: false,
@@ -16,12 +16,12 @@ app.use(session({
     cookie: { secure: false }
 }));
 
-// Middleware to serve static files
+
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.static(path.join(__dirname, '..', 'views')));
 app.use(express.urlencoded({ extended: true }));
 
-// Routes to serve HTML pages
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
@@ -134,7 +134,7 @@ app.post('/create-collection', (req, res) => {
             return res.status(500).send("Internal Server Error.");
         }
 
-        const collection_id = result.insertId; // New collection ID
+        const collection_id = result.insertId; 
 
         const items = card_ids.map(card_id => [collection_id, card_id]);
 
@@ -208,6 +208,71 @@ app.get('/users', (req, res) => {
     });
 });
 
+
+
+app.post('/delete-user', (req, res) => {
+    const user_id = req.session.user?.id; 
+
+    if (!user_id) {
+        return res.status(401).send("User not logged in.");
+    }
+
+    
+    const deleteCollectionItemsQuery = `
+        DELETE FROM collection_items WHERE collection_id IN (
+            SELECT collection_id FROM Collections WHERE user_id = ?
+        )
+    `;
+
+    db.query(deleteCollectionItemsQuery, [user_id], (error) => {
+        if (error) {
+            console.error("Error deleting collection items:", error);
+            return res.status(500).send("Internal Server Error.");
+        }
+
+        
+        const deleteCollectionsQuery = `
+            DELETE FROM Collections WHERE user_id = ?
+        `;
+
+        db.query(deleteCollectionsQuery, [user_id], (error) => {
+            if (error) {
+                console.error("Error deleting collections:", error);
+                return res.status(500).send("Internal Server Error.");
+            }
+
+            
+            const deleteUserQuery = `
+                DELETE FROM users WHERE user_id = ?
+            `;
+
+            db.query(deleteUserQuery, [user_id], (error) => {
+                if (error) {
+                    console.error("Error deleting user:", error);
+                    return res.status(500).send("Internal Server Error.");
+                }
+
+                req.session.destroy(err => {
+                    if (err) {
+                        console.error("Error ending session:", err);
+                        return res.status(500).send("Failed to log out.");
+                    }
+
+                    res.redirect('/account-deleted'); 
+                });
+            });
+        });
+    });
+});
+
+app.get('/delete-user', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'views', 'delete-user.html')); 
+});
+
+app.get('/account-deleted', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'views', 'account-deleted.html')); 
+});
+
 app.get('/cards', (req, res) => {
     let { name, type, rarity, price, set, series } = req.query;
     let query = "SELECT * FROM Cards WHERE 1=1";
@@ -248,17 +313,17 @@ app.get('/cards', (req, res) => {
     });
 });
 
-// Logout route
+
 app.get('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) {
             return res.status(500).send('Failed to log out');
         }
-        res.sendFile(path.join(__dirname, '..', 'views', 'logout-success.html')); // Make sure the path is correct
+        res.sendFile(path.join(__dirname, '..', 'views', 'logout-success.html')); 
     });
 });
 
-// Start the server
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
