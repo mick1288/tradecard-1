@@ -144,7 +144,7 @@ app.post('/create-collection', (req, res) => {
                 return res.status(500).send("Internal Server Error.");
             }
 
-            res.redirect('/collections');
+            res.redirect('/collections.html');
         });
     });
 });

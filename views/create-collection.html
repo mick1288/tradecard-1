@@ -12,10 +12,9 @@
         <label for="collection_name">Collection Name:</label>
         <input type="text" name="collection_name" id="collection_name" required>
 
-        
         <label for="card_ids">Select Cards:</label>
 
-        
+        <div id="cardsContainer"></div>
 
         <button type="submit">Create Collection</button>
     </form>
@@ -25,8 +24,7 @@
             fetch('/api/card-names')
                 .then(response => response.json())
                 .then(cards => {
-                    const form = document.querySelector('form');
-                    const cardsContainer = document.createElement('div');
+                    const container = document.getElementById('cardsContainer');
 
                     cards.forEach(card => {
                         const checkbox = document.createElement('input');
@@ -35,16 +33,12 @@
                         checkbox.value = card.card_id;
 
                         const label = document.createElement('label');
-                        label.appendChild(checkbox);
                         label.append(` ${card.card_name}`);
 
-                        const br = document.createElement('br');
-
-                        cardsContainer.appendChild(label);
-                        cardsContainer.appendChild(br);
+                        container.appendChild(checkbox);
+                        container.appendChild(label);
+                        container.appendChild(document.createElement('br'));
                     });
-
-                    form.insertBefore(cardsContainer, form.querySelector('button[type="submit"]'));
                 })
                 .catch(error => console.error('Error loading cards:', error));
         });
