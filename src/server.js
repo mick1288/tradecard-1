@@ -149,6 +149,47 @@ app.post('/create-collection', (req, res) => {
     });
 });
 
+app.post('/delete-collection', (req, res) => {
+    const collectionName = req.body.collection_name;
+    const userId = req.session.user?.id;
+
+    if (!userId) {
+        return res.status(401).send("User not logged in.");
+    }
+
+    db.query("SELECT collection_id FROM collections WHERE collection_name = ? AND user_id = ?", [collectionName, userId], (err, results) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).send("Internal Server Error.");
+        }
+
+        if (results.length === 0) {
+            return res.status(404).send("Collection not found.");
+        }
+
+        const collectionId = results[0].collection_id;
+
+        db.query("DELETE FROM collection_items WHERE collection_id = ?", [collectionId], (error) => {
+            if (error) {
+                console.error("Error deleting collection items:", error);
+                return res.status(500).send("Failed to delete collection items.");
+            }
+
+            db.query("DELETE FROM collections WHERE collection_id = ?", [collectionId], (error) => {
+                if (error) {
+                    console.error("Error deleting the collection:", error);
+                    return res.status(500).send("Failed to delete collection.");
+                }
+
+                
+                res.redirect('/collection-deleted.html'); 
+            });
+        });
+    });
+});
+
+
+
 
 app.get('/api/card-names', (req, res) => {
     db.query("SELECT card_id, card_name FROM Cards", (error, results) => {
