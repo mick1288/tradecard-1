@@ -134,9 +134,9 @@ app.post('/create-collection', (req, res) => {
             return res.status(500).send("Internal Server Error.");
         }
 
-        const collection_id = result.insertId; 
-
-        const items = card_ids.map(card_id => [collection_id, card_id]);
+        const collection_id = result.insertId;
+        const itemsArray = Array.isArray(card_ids) ? card_ids : [card_ids];
+        const items = itemsArray.map(card_id => [collection_id, card_id]);
 
         db.query("INSERT INTO collection_items (collection_id, card_id) VALUES ?", [items], (error) => {
             if (error) {
@@ -148,6 +148,7 @@ app.post('/create-collection', (req, res) => {
         });
     });
 });
+
 
 app.post('/delete-collection', (req, res) => {
     const collectionName = req.body.collection_name;
