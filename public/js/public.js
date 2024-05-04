@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('publicCollectionsContainer');
+    if (!container) return;  // Only runs if the container is found
+
     fetch('/api/public-collections')
         .then(response => response.json())
         .then(collections => {
-            const container = document.getElementById('publicCollectionsContainer');
-
-            container.innerHTML = ''; 
+            container.innerHTML = '';
 
             if (collections.length > 0) {
                 collections.forEach(item => {
@@ -16,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <strong>Rarity:</strong> ${item.rarity} <br>
                         <strong>Username:</strong> ${item.username} <br>
                     `;
-
                     container.appendChild(div);
                 });
             } else {

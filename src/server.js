@@ -202,6 +202,9 @@ app.get('/api/card-names', (req, res) => {
     });
 });
 
+app.get('/public-collections.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'views', 'public-collections.html'));
+});
 
 
 
@@ -231,12 +234,9 @@ app.get('/api/public-collections', (req, res) => {
 
 
 app.get('/cards.html', (req, res) => {
-    if (req.session.user) {
-        res.sendFile(path.join(__dirname, '..', 'views', 'cards.html'));
-    } else {
-        res.send('Please login to view this page.');
-    }
+    res.sendFile(path.join(__dirname, '..', 'views', 'cards.html'));
 });
+
 
 app.get('/users', (req, res) => {
     db.query('SELECT username FROM users', (error, results) => {

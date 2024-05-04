@@ -8,8 +8,28 @@
 <body>
     <h1>Public Collections</h1>
 
-    <div id="publicCollectionsContainer"></div>
+    <div id="collectionsContainer"></div>
 
-    <script src="/js/public.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/public-collections')
+                .then(response => response.json())
+                .then(data => {
+                    const collectionsContainer = document.getElementById('collectionsContainer');
+                    data.forEach(collection => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `
+                            <h3>${collection.collection_name}</h3>
+                            <p>Card: ${collection.card_name} - Rarity: ${collection.rarity}</p>
+                            <p>Type: ${collection.types} - Owned by: ${collection.username}</p>
+                        `;
+                        collectionsContainer.appendChild(div);
+                    });
+                })
+                .catch(error => console.error('Failed to load public collections:', error));
+        });
+        </script>
+        
 </body>
 </html>
