@@ -212,15 +212,20 @@ app.get('/public-collections.html', (req, res) => {
 app.get('/api/public-collections', (req, res) => {
     const query = `
         SELECT 
-            c.collection_name, 
-            ca.card_name, 
-            ca.types, 
-            ca.rarity, 
-            u.username 
-        FROM Collections c
-        JOIN collection_items ci ON c.collection_id = ci.collection_id
-        JOIN Cards ca ON ci.card_id = ca.card_id
-        JOIN users u ON c.user_id = u.user_id
+            Collections.collection_name, 
+            Cards.card_name, 
+            Cards.image_path, 
+            Cards.types, 
+            Cards.rarity,
+            Users.username
+        FROM 
+            Collections
+        JOIN 
+            Collection_Items ON Collections.collection_id = Collection_Items.collection_id
+        JOIN 
+            Cards ON Collection_Items.card_id = Cards.card_id
+        JOIN 
+            Users ON Collections.user_id = Users.user_id;
     `;
 
     db.query(query, (error, results) => {
@@ -228,7 +233,6 @@ app.get('/api/public-collections', (req, res) => {
             console.error("Error retrieving public collections:", error);
             return res.status(500).send("Internal Server Error.");
         }
-
         res.json(results);
     });
 });
