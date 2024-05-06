@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Public Collections</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Public Collections</h1>
-
-    <div id="collectionsContainer"></div>
-
+    <div class="container mt-3">
+        <h1>Public Collections</h1>
+        <div id="collectionsContainer" class="row"></div> <!-- Use Bootstrap's row for grid system -->
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -17,19 +19,33 @@
                 .then(response => response.json())
                 .then(data => {
                     const collectionsContainer = document.getElementById('collectionsContainer');
+                    collectionsContainer.innerHTML = ''; // Clear previous results
+
                     data.forEach(collection => {
-                        const div = document.createElement('div');
-                        div.innerHTML = `
-                            <h3>${collection.collection_name}</h3>
-                            <p>Card: ${collection.card_name} - Rarity: ${collection.rarity}</p>
-                            <p>Type: ${collection.types} - Owned by: ${collection.username}</p>
+                        const col = document.createElement('div');
+                        col.className = 'col-md-4 mb-4'; // Responsive column sizes
+
+                        const card = document.createElement('div');
+                        card.className = 'card';
+
+                        const cardBody = document.createElement('div');
+                        cardBody.className = 'card-body';
+
+                        cardBody.innerHTML = `
+                            <h5 class="card-title">${collection.collection_name}</h5>
+                            <p class="card-text">Card: ${collection.card_name}</p>
+                            <p class="card-text">Rarity: ${collection.rarity}</p>
+                            <p class="card-text">Type: ${collection.types}</p>
+                            <p class="card-text">Owned by: ${collection.username}</p>
                         `;
-                        collectionsContainer.appendChild(div);
+
+                        card.appendChild(cardBody);
+                        col.appendChild(card);
+                        collectionsContainer.appendChild(col);
                     });
                 })
                 .catch(error => console.error('Failed to load public collections:', error));
         });
-        </script>
-        
+    </script>
 </body>
 </html>

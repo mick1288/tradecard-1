@@ -1,26 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('publicCollectionsContainer');
+    const container = document.getElementById('collectionsContainer');
     if (!container) return;  // Only runs if the container is found
 
     fetch('/api/public-collections')
         .then(response => response.json())
         .then(collections => {
-            container.innerHTML = '';
+            container.innerHTML = '';  // Clear existing content
 
             if (collections.length > 0) {
                 collections.forEach(item => {
-                    const div = document.createElement('div');
-                    div.innerHTML = `
-                        <strong>Collection:</strong> ${item.collection_name} <br>
-                        <strong>Card:</strong> ${item.card_name} <br>
-                        <strong>Type:</strong> ${item.types} <br>
-                        <strong>Rarity:</strong> ${item.rarity} <br>
-                        <strong>Username:</strong> ${item.username} <br>
+                    const col = document.createElement('div');
+                    col.className = 'col-md-4 mb-4'; // Bootstrap grid layout for responsive columns
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    const cardBody = document.createElement('div');
+                    cardBody.className = 'card-body';
+
+                    cardBody.innerHTML = `
+                        <h5 class="card-title">${item.collection_name}</h5>
+                        <p class="card-text">Card: ${item.card_name}</p>
+                        <p class="card-text">Rarity: ${item.rarity}</p>
+                        <p class="card-text">Type: ${item.types}</p>
+                        <p class="card-text">Owned by: ${item.username}</p>
                     `;
-                    container.appendChild(div);
+
+                    card.appendChild(cardBody);
+                    col.appendChild(card);
+                    container.appendChild(col);
                 });
             } else {
-                container.innerHTML = '<p>No collections found.</p>';
+                container.innerHTML = '<div class="col-12"><p class="text-center">No collections found.</p></div>';
             }
         })
         .catch(error => console.error("Error loading public collections:", error));

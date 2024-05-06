@@ -11,7 +11,7 @@ function searchCards() {
         .then(response => response.json())
         .then(data => {
             const container = document.getElementById('cardsContainer');
-            container.innerHTML = ''; // Clear previous results
+            container.innerHTML = ''; 
 
             data.forEach(card => {
                 const cardElem = document.createElement('div');
