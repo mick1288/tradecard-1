@@ -1,9 +1,9 @@
 function searchCards() {
-    const name = document.getElementById('name').value;
-    const type = document.getElementById('type').value;
-    const rarity = document.getElementById('rarity').value;
-    const set = document.getElementById('set').value;
-    const series = document.getElementById('series').value;
+    const name = encodeURIComponent(document.getElementById('name').value);
+    const type = encodeURIComponent(document.getElementById('type').value);
+    const rarity = encodeURIComponent(document.getElementById('rarity').value);
+    const set = encodeURIComponent(document.getElementById('set').value);
+    const series = encodeURIComponent(document.getElementById('series').value);
 
     const query = `?name=${name}&type=${type}&rarity=${rarity}&set=${set}&series=${series}`;
 
@@ -18,7 +18,7 @@ function searchCards() {
                 cardElem.classList.add('card', 'mb-3');
                 cardElem.style.width = '18rem';
                 cardElem.innerHTML = `
-                    <img src="${card.image_path}" class="card-img-top" alt="Image of ${card.card_name}">
+                    <img src="${card.image_path}" class="card-img-top" alt="Image of ${card.card_name}" style="width: 100%; height: auto;">
                     <div class="card-body">
                         <h5 class="card-title">${card.card_name}</h5>
                         <p class="card-text"><strong>Type:</strong> ${card.types}</p>
