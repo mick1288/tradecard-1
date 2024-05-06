@@ -11,17 +11,22 @@ function searchCards() {
         .then(response => response.json())
         .then(data => {
             const container = document.getElementById('cardsContainer');
-            container.innerHTML = ''; 
+            container.innerHTML = ''; // Clear previous results
 
             data.forEach(card => {
                 const cardElem = document.createElement('div');
+                cardElem.classList.add('card', 'mb-3');
+                cardElem.style.width = '18rem';
                 cardElem.innerHTML = `
-                    <strong>Name:</strong> ${card.card_name}<br>
-                    <strong>Type:</strong> ${card.types}<br>
-                    <strong>Rarity:</strong> ${card.rarity}<br>
-                    <strong>Set:</strong> ${card.set_name}<br>
-                    <strong>Series:</strong> ${card.series}<br>
-                    <a href="${card.cardmarket_url}">View Pricing</a>
+                    <img src="${card.image_path}" class="card-img-top" alt="Image of ${card.card_name}">
+                    <div class="card-body">
+                        <h5 class="card-title">${card.card_name}</h5>
+                        <p class="card-text"><strong>Type:</strong> ${card.types}</p>
+                        <p class="card-text"><strong>Rarity:</strong> ${card.rarity}</p>
+                        <p class="card-text"><strong>Set:</strong> ${card.set_name}</p>
+                        <p class="card-text"><strong>Series:</strong> ${card.series}</p>
+                        <a href="${card.cardmarket_url}" class="btn btn-primary">View Pricing</a>
+                    </div>
                 `;
                 container.appendChild(cardElem);
             });
