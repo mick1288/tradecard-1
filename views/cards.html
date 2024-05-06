@@ -4,18 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse Cards</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Browse Cards</h1>
-    <form id="searchForm">
-        <input type="text" id="name" placeholder="Card Name">
-        <input type="text" id="type" placeholder="Type">
-        <input type="text" id="rarity" placeholder="Rarity">
-        <input type="text" id="set" placeholder="Set Name">
-        <input type="text" id="series" placeholder="Series">
-        <button type="button" onclick="searchCards()">Search</button>
-    </form>
-    <div id="cardsContainer"></div>
+<body class="bg-secondary"> 
+    <div class="container mt-5">
+        <h1 class="mb-3 text-white">Browse Cards</h1> 
+        <form id="searchForm" class="mb-4">
+            <div class="row">
+                <div class="col-md-2 mb-3">
+                    <input type="text" class="form-control" id="name" placeholder="Card Name">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <input type="text" class="form-control" id="type" placeholder="Type">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <input type="text" class="form-control" id="rarity" placeholder="Rarity">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <input type="text" class="form-control" id="set" placeholder="Set Name">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <input type="text" class="form-control" id="series" placeholder="Series">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <button type="button" class="btn btn-primary" onclick="searchCards()">Search</button>
+                </div>
+            </div>
+        </form>
+        <div id="cardsContainer" class="row"></div> 
+    </div>
     <script src="/js/cards.js"></script>
 </body>
 </html>

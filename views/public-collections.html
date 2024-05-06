@@ -6,9 +6,9 @@
     <title>Public Collections</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-dark text-white"> 
     <div class="container mt-3">
-        <h1>Public Collections</h1>
+        <h1 class="text-center mb-4">Public Collections</h1>
         <div id="collectionsContainer" class="row"></div>
     </div>
 
@@ -18,24 +18,19 @@
                 .then(response => response.json())
                 .then(data => {
                     const collectionsContainer = document.getElementById('collectionsContainer');
-                    collectionsContainer.innerHTML = ''; // Clear previous results
+                    collectionsContainer.innerHTML = '';
 
                     data.forEach(collection => {
                         const col = document.createElement('div');
-                        col.className = 'col-md-4 mb-4'; 
-
+                        col.className = 'col-md-4 mb-4';
                         const card = document.createElement('div');
-                        card.className = 'card h-100'; 
-
+                        card.className = 'card h-100 bg-secondary text-white'; 
                         const img = document.createElement('img');
-                        img.src = collection.image_path; 
-                        img.className = 'card-img-top';
+                        img.src = collection.image_path;
+                        img.className = 'card-img-top img-fluid';
                         img.alt = `Image of ${collection.card_name}`;
-                        img.style = 'height: 200px; object-fit: cover;'; 
-
                         const cardBody = document.createElement('div');
                         cardBody.className = 'card-body';
-
                         cardBody.innerHTML = `
                             <h5 class="card-title">${collection.collection_name}</h5>
                             <p class="card-text">Card: ${collection.card_name}</p>
@@ -43,8 +38,7 @@
                             <p class="card-text">Type: ${collection.types}</p>
                             <p class="card-text">Owned by: ${collection.username}</p>
                         `;
-
-                        card.appendChild(img); // Adding the image to the card
+                        card.appendChild(img);
                         card.appendChild(cardBody);
                         col.appendChild(card);
                         collectionsContainer.appendChild(col);
