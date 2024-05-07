@@ -83,7 +83,7 @@ app.get('/dashboard.html', (req, res) => {
 });
 
 app.get('/collections', (req, res) => {
-    const user_id = req.session.user?.id; 
+    const user_id = req.session.user?.id;
 
     if (!user_id) {
         return res.status(401).send("User not logged in.");
@@ -95,7 +95,8 @@ app.get('/collections', (req, res) => {
             u.username, 
             ca.card_name, 
             ca.types, 
-            ca.rarity 
+            ca.rarity,
+            ca.image_path  
         FROM Collections c
         JOIN collection_items ci ON c.collection_id = ci.collection_id
         JOIN Cards ca ON ci.card_id = ca.card_id
@@ -108,6 +109,12 @@ app.get('/collections', (req, res) => {
             console.error("Error retrieving collections:", error);
             return res.status(500).send("Internal Server Error.");
         }
+
+        
+        results = results.map(item => ({
+            ...item,
+            image_path: item.image_path.startsWith('/') ? item.image_path : `/images/${item.image_path}`
+        }));
 
         res.json(results); 
     });

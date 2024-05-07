@@ -2,20 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('/images/dashboard.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #f8f9fa; 
+        }
+        .container {
+            background-color: rgba(0, 0, 0, 0.8); 
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 50px; 
+        }
+        .nav-link {
+            margin-right: 15px; 
+        }
+        
+        .btn-custom-primary {
+            background-color: #6c757d; 
+            border-color: #6c757d;
+        }
+        .btn-custom-danger {
+            background-color: #dc3545; 
+            border-color: #dc3545;
+        }
+        .btn-custom-secondary {
+            background-color: #adb5bd; 
+            border-color: #adb5bd;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Your Dashboard</h1>
-    <p>This is your personal dashboard where you can manage your card collections, view cards, and more.</p>
+    <div class="container text-center">
+        <h1>Welcome to Your Dashboard</h1>
+        <p>This is your personal dashboard where you can manage your card collections, view cards, and more.</p>
 
-    <a href="/collections.html">View Collections</a> | 
-    <a href="/cards.html">View Cards</a> | 
-    <a href="/public-collections.html">View Public Collections</a> | 
-    <a href="/create-collection.html">Create Collection</a> | 
-    <p><a href="/delete-collection.html">Delete a Collection</a></p>
-    <a href="/logout">Logout</a>
-
-    <p><a href="/delete-user">Delete Account</a></p>
+        <div class="mb-3">
+            <a href="/collections.html" class="btn btn-custom-primary nav-link">View Collections</a>
+            <a href="/cards.html" class="btn btn-custom-primary nav-link">View Cards</a>
+            <a href="/public-collections.html" class="btn btn-custom-primary nav-link">View Public Collections</a>
+            <a href="/create-collection.html" class="btn btn-custom-primary nav-link">Create Collection</a>
+        </div>
+        
+        <div class="mb-3">
+            <a href="/delete-collection.html" class="btn btn-custom-danger nav-link">Delete a Collection</a>
+            <a href="/logout" class="btn btn-custom-secondary nav-link">Logout</a>
+            <a href="/delete-user" class="btn btn-custom-danger nav-link">Delete Account</a>
+        </div>
+    </div>
 </body>
 </html>

@@ -2,14 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1.0">
-    <title>View Collections</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Collections</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Your Collections</h1>
+<body class="bg-dark text-white">
+    <div class="container mt-3">
+        <h1 class="text-center mb-4">Your Collections</h1>
+        <div id="collectionsContainer" class="row"></div>
+    </div>
 
-    <div id="collectionsContainer"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/collections')  
+                .then(response => response.json())
+                .then(data => {
+                    const collectionsContainer = document.getElementById('collectionsContainer');
+                    collectionsContainer.innerHTML = '';
 
-    <script src="/js/collections.js"></script>
+                    data.forEach(collection => {
+                        const col = document.createElement('div');
+                        col.className = 'col-md-4 mb-4';
+                        const card = document.createElement('div');
+                        card.className = 'card h-100 bg-secondary text-white';
+                        const img = document.createElement('img');
+                        img.src = collection.image_path;
+                        img.className = 'card-img-top img-fluid';
+                        img.alt = `Image of ${collection.card_name}`;
+                        const cardBody = document.createElement('div');
+                        cardBody.className = 'card-body';
+                        cardBody.innerHTML = `
+                            <h5 class="card-title">${collection.collection_name}</h5>
+                            <p class="card-text">Card: ${collection.card_name}</p>
+                            <p class="card-text">Rarity: ${collection.rarity}</p>
+                            <p class="card-text">Type: ${collection.types}</p>
+                            <p class="card-text">Owned by: ${collection.username}</p>
+                        `;
+                        card.appendChild(img);
+                        card.appendChild(cardBody);
+                        col.appendChild(card);
+                        collectionsContainer.appendChild(col);
+                    });
+                })
+                .catch(error => console.error('Failed to load your collections:', error));
+        });
+    </script>
 </body>
 </html>
