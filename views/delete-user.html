@@ -2,15 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Deletion</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/deleteUser.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.8); 
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .btn-danger {
+            width: 100%; 
+        }
+    </style>
 </head>
 <body>
-    <h1>Account Deletion</h1>
-
-    <form action="/delete-user" method="post">
-        <label>Are you sure you want to delete your account and all associated items?</label>
-        <button type="submit">Delete Account</button>
-    </form>
+    <div class="container">
+        <h1>Account Deletion</h1>
+        <form action="/delete-user" method="post">
+            <div class="alert alert-warning" role="alert">
+                <label>Are you sure you want to delete your account and all associated items?</label>
+            </div>
+            <button type="submit" class="btn btn-danger">Delete Account</button>
+        </form>
+    </div>
 </body>
 </html>

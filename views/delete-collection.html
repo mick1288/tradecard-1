@@ -4,13 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delete Collection</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/deleteBackground.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.7); 
+            padding: 40px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .btn-danger {
+            width: 100%; 
+        }
+    </style>
 </head>
 <body>
-    <h1>Delete Collection</h1>
-    <form action="/delete-collection" method="post">
-        <label for="collection_name">Collection Name:</label>
-        <input type="text" id="collection_name" name="collection_name" required>
-        <button type="submit">Delete Collection</button>
-    </form>    
+    <div class="container">
+        <h1 class="mb-4 text-center">Delete Collection</h1>
+        <form action="/delete-collection" method="post">
+            <div class="form-group">
+                <label for="collection_name" class="form-label">Collection Name:</label>
+                <input type="text" id="collection_name" name="collection_name" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-danger">Delete Collection</button>
+        </form>    
+    </div>
 </body>
 </html>
