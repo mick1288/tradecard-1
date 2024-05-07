@@ -10,13 +10,17 @@
             background-image: url('/images/login.jpg');
             background-size: cover;
             background-position: center;
-            color: #333; /* Dark text for better visibility */
+            color: #333;
         }
         .form-background {
-            background-color: rgba(255, 255, 255, 0.8); /* Light background for form with slight opacity */
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Soft box shadow for depth */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .error-message {
+            color: #ff0000; 
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -24,20 +28,34 @@
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <form action="/login" method="POST" class="form-background">
+                <div class="form-background">
                     <h1 class="text-center mb-4">Login to PokeTrade</h1>
-                    <div class="form-group">
-                        <label for="username">Username:</label>
-                        <input type="text" id="username" name="username" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input type="password" id="password" name="password" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">Login</button>
-                </form>
+                    <div id="error-message" class="error-message"></div> 
+                    <form action="/login" method="POST">
+                        <div class="form-group">
+                            <label for="username">Username:</label>
+                            <input type="text" id="username" name="username" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+    <script>
+        
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const error = params.get('error');
+            if (error) {
+                const errorMessageDiv = document.getElementById('error-message');
+                errorMessageDiv.textContent = decodeURIComponent(error.replace(/\+/g, ' '));
+            }
+        };
+    </script>
 </body>
 </html>

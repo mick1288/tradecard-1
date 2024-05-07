@@ -58,21 +58,22 @@ app.post('/login', (req, res) => {
     db.query('SELECT * FROM users WHERE username = ?', [username], (error, results) => {
         if (error) {
             console.error('Error fetching user:', error);
-            res.status(500).send('Internal Server Error');
+            res.redirect('/login.html?error=Internal+Server+Error'); 
         } else if (results.length > 0) {
             bcrypt.compare(password, results[0].password, (err, result) => {
                 if (result) {
                     req.session.user = { id: results[0].user_id, username: results[0].username };
                     res.redirect('/dashboard.html');
                 } else {
-                    res.send('Username or password is incorrect');
+                    res.redirect('/login.html?error=Username+or+password+is+incorrect'); 
                 }
             });
         } else {
-            res.send('Username does not exist');
+            res.redirect('/login.html?error=Username+does+not+exist'); 
         }
     });
 });
+
 
 app.get('/dashboard.html', (req, res) => {
     if (req.session.user) {

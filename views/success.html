@@ -4,10 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Success</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/success.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.8); 
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        a {
+            color: #17a2b8; 
+            font-weight: bold;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Registration Successful!</h1>
-    <p>Congratulations, your registration was successful.</p>
-    <p>You can now <a href="/login.html">login</a> to your account.</p>
+    <div class="container">
+        <h1>Registration Successful!</h1>
+        <p>Congratulations, your registration was successful.</p>
+        <p>You can now <a href="/login.html" class="btn btn-info btn-lg">login</a> to your account.</p>
+    </div>
 </body>
 </html>
