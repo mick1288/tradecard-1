@@ -200,7 +200,7 @@ app.post('/delete-collection', (req, res) => {
 
 
 app.get('/api/card-names', (req, res) => {
-    db.query("SELECT card_id, card_name FROM Cards", (error, results) => {
+    db.query("SELECT card_id, card_name, image_path FROM Cards", (error, results) => {
         if (error) {
             console.error("Error retrieving cards:", error);
             return res.status(500).send("Internal Server Error.");

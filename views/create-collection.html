@@ -2,22 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create a Collection</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .card-image {
+            width: 50px;
+            height: auto;
+            margin-right: 10px;
+        }
+        .form-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+    </style>
 </head>
-<body>
-    <h1>Create a New Collection</h1>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="mb-3">Create a New Collection</h1>
+        <div class="form-container">
+            <form action="/create-collection" method="post">
+                <div class="mb-3">
+                    <label for="collection_name" class="form-label">Collection Name:</label>
+                    <input type="text" class="form-control" name="collection_name" id="collection_name" required>
+                </div>
 
-    <form action="/create-collection" method="post">
-        <label for="collection_name">Collection Name:</label>
-        <input type="text" name="collection_name" id="collection_name" required>
+                <div class="mb-3">
+                    <label for="card_ids" class="form-label">Select Cards:</label>
+                    <div id="cardsContainer"></div>
+                </div>
 
-        <label for="card_ids">Select Cards:</label>
-
-        <div id="cardsContainer"></div>
-
-        <button type="submit">Create Collection</button>
-    </form>
+                <button type="submit" class="btn btn-primary">Create Collection</button>
+            </form>
+        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -27,17 +51,30 @@
                     const container = document.getElementById('cardsContainer');
 
                     cards.forEach(card => {
+                        const detail = document.createElement('div');
+                        detail.className = 'card-detail';
+
                         const checkbox = document.createElement('input');
                         checkbox.type = 'checkbox';
                         checkbox.name = 'card_ids';
                         checkbox.value = card.card_id;
+                        checkbox.className = 'form-check-input';
 
                         const label = document.createElement('label');
-                        label.append(` ${card.card_name}`);
+                        label.className = 'form-check-label';
+                        label.textContent = card.card_name;
 
-                        container.appendChild(checkbox);
-                        container.appendChild(label);
-                        container.appendChild(document.createElement('br'));
+                        
+                        if (card.image_path) {
+                            const img = document.createElement('img');
+                            img.src = card.image_path;
+                            img.className = 'card-image';
+                            detail.appendChild(img);
+                        }
+
+                        detail.appendChild(checkbox);
+                        detail.appendChild(label);
+                        container.appendChild(detail);
                     });
                 })
                 .catch(error => console.error('Error loading cards:', error));
