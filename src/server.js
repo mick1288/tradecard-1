@@ -4,10 +4,8 @@ const session = require('express-session');
 const path = require('path');
 const db = require('./database'); 
 const axios = require('axios'); 
-
 const app = express();
 const PORT = process.env.PORT || 5500;
-
 
 app.use(session({
     secret: 'your_secret_key',
@@ -16,11 +14,9 @@ app.use(session({
     cookie: { secure: false }
 }));
 
-
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.static(path.join(__dirname, '..', 'views')));
 app.use(express.urlencoded({ extended: true }));
-
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'index.html'));
@@ -74,12 +70,11 @@ app.post('/login', (req, res) => {
     });
 });
 
-
 app.get('/dashboard.html', (req, res) => {
     if (req.session.user) {
-        res.sendFile(path.join(__dirname, '..', 'views', 'dashboard.html'));
+      res.sendFile(path.join(__dirname, '..', 'views', 'dashboard.html'));
     } else {
-        res.send('Please login to view this page.');
+      res.send('Please login to view this page.');
     }
 });
 
@@ -87,7 +82,7 @@ app.get('/collections', (req, res) => {
     const user_id = req.session.user?.id;
 
     if (!user_id) {
-        return res.status(401).send("User not logged in.");
+     return res.status(401).send("User not logged in.");
     }
 
     const query = `
@@ -121,9 +116,6 @@ app.get('/collections', (req, res) => {
     });
 });
 
-
-
-
 app.get('/create-collection', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'views', 'create-collection.html'));
 });
@@ -156,7 +148,6 @@ app.post('/create-collection', (req, res) => {
         });
     });
 });
-
 
 app.post('/delete-collection', (req, res) => {
     const collectionName = req.body.collection_name;
@@ -197,9 +188,6 @@ app.post('/delete-collection', (req, res) => {
     });
 });
 
-
-
-
 app.get('/api/card-names', (req, res) => {
     db.query("SELECT card_id, card_name, image_path FROM Cards", (error, results) => {
         if (error) {
@@ -214,8 +202,6 @@ app.get('/api/card-names', (req, res) => {
 app.get('/public-collections.html', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'views', 'public-collections.html'));
 });
-
-
 
 app.get('/api/public-collections', (req, res) => {
     const query = `
@@ -245,11 +231,9 @@ app.get('/api/public-collections', (req, res) => {
     });
 });
 
-
 app.get('/cards.html', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'views', 'cards.html'));
 });
-
 
 app.get('/users', (req, res) => {
     db.query('SELECT username FROM users', (error, results) => {
@@ -261,9 +245,6 @@ app.get('/users', (req, res) => {
         }
     });
 });
-
-
-
 app.post('/delete-user', (req, res) => {
     const user_id = req.session.user?.id; 
 
@@ -367,7 +348,6 @@ app.get('/cards', (req, res) => {
     });
 });
 
-
 app.get('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) {
@@ -376,7 +356,6 @@ app.get('/logout', (req, res) => {
         res.sendFile(path.join(__dirname, '..', 'views', 'logout-success.html')); 
     });
 });
-
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
