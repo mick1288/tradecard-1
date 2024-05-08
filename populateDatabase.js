@@ -16,7 +16,7 @@ async function populateCards() {
     const connection = await mysql.createConnection(dbConfig);
     try {
         const response = await axios.get('https://api.pokemontcg.io/v2/cards?pageSize=60', {
-            headers: { 'X-Api-Key': '3dc955ac-f17f-4c5e-9373-bce12455641e' }  // Your API key
+            headers: { 'X-Api-Key': '3dc955ac-f17f-4c5e-9373-bce12455641e' }  
         });
         const cards = response.data.data;
 
@@ -26,7 +26,7 @@ async function populateCards() {
                 retreatCost, set, flavorText, artist, releaseDate, updated_at, tcgplayer, cardmarket
             } = card;
 
-            const description = flavorText || 'No description available.'; // Use flavor text as description
+            const description = flavorText || 'No description available.'; 
 
             const query = `
                 INSERT INTO cards (
